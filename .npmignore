@@ -1,0 +1,44 @@
+# Source files (only include built dist)
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Development files
+.env*
+tsconfig.json
+.eslintrc.*
+.prettierrc.*
+
+# Tests
+test/
+tests/
+**/*.test.*
+**/*.spec.*
+
+# Documentation (except README)
+docs/
+
+# IDE
+.vscode/
+.idea/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary
+tmp/
+temp/
