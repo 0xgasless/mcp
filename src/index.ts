@@ -115,7 +115,8 @@ This will help you configure Claude Desktop to use 0xGasless MCP Server.
 
     // Prepare the configuration
     const mcpConfig = {
-      command: "0xgasless-mcp",
+      command: "npx",
+      args: ["0xgasless-mcp"],
       env: {
         PRIVATE_KEY: privateKey,
         RPC_URL: rpcUrl,
