@@ -4,22 +4,22 @@
     "description": "MCP server for 0xGasless smart accounts with gasless blockchain operations. Directly connects to Claude Desktop",
     "main": "dist/index.js",
     "bin": {
-      "0xgasless-mcp": "dist/index.js"
-    },
-    "files": [
-      "dist/**/*",
-      "README.md",
-      "LICENSE"
-    ],
-    "scripts": {
-      "build": "tsc",
-      "dev": "tsc --watch",
-      "start": "node dist/index.js",
-      "prepublishOnly": "npm run build",
-      "test": "echo \"No tests specified\" && exit 0",
-      "lint": "eslint src/**/*.ts",
-      "format": "prettier --write src/**/*.ts"
-    },
+        "0xgasless-mcp": "dist/index.js"
+      },
+      "files": [
+        "dist/**/*",
+        "README.md",
+        "LICENSE"
+      ],
+      "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "start": "node dist/index.js",
+        "prepublishOnly": "npm run build",
+        "test": "echo \"No tests specified\" && exit 0",
+        "lint": "eslint src/**/*.ts",
+        "format": "prettier --write src/**/*.ts"
+      },
     "keywords": [
       "mcp",
       "model-context-protocol",
