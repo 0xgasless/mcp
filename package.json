@@ -1,6 +1,6 @@
 {
     "name": "0xgasless-mcp",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "MCP server for 0xGasless smart accounts with gasless blockchain operations. Directly connects to Claude Desktop",
     "main": "dist/index.js",
     "bin": {
