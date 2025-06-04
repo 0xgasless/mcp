@@ -1,95 +1,121 @@
-# 0xGasless MCP Server
 
-A Model Context Protocol (MCP) server that enables Claude to interact with blockchain networks using 0xGasless smart accounts. Perform gasless transactions, swaps, transfers, and buy OpenRouter credits directly from Claude conversations.
+# 🚀 0xGasless MCP Server
 
-## 🌟 Features
 
-- **Gasless Transactions**: Execute blockchain operations without holding native tokens for gas
-- **Multi-Chain Support**: Works on BSC, Base, Ethereum, Polygon, Avalanche, Fantom, Moonbeam, and Metis
-- **Smart Account Integration**: Built on ERC-4337 account abstraction standard
-- **OpenRouter Integration**: Buy AI credits directly with USDC
-- **Claude Integration**: Seamless conversation-based blockchain interactions
+**🔗 Seamless Blockchain Integration for Claude AI**
 
-## 🔧 Available Tools
+*Execute gasless transactions, swaps, and transfers directly from your Claude conversations*
 
-1. **get-address**: Get your smart account wallet address
-2. **get-balance**: Check token balances (supports all ERC20 tokens)
-3. **transfer-token**: Send tokens gaslessly to any address
-4. **swap-tokens**: Swap tokens without gas fees
-5. **buy-openrouter-credits**: Purchase OpenRouter AI credits with USDC
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🛠️ Development](#️-development) • [🤝 Contributing](#-contributing)
 
-## 🚀 Installation
+</div>
 
-### Global Installation (Recommended)
+---
+
+## 🌟 What is 0xGasless MCP Server?
+
+The **0xGasless MCP Server** is a powerful [Model Context Protocol](https://modelcontextprotocol.io) server that bridges Claude AI with blockchain networks. Built on **ERC-4337 Account Abstraction**, it enables gasless blockchain operations through natural language conversations.
+
+### ✨ Key Highlights
+
+- 🆓 **Zero Gas Fees** - Execute transactions without holding native tokens
+- 🌐 **Multi-Chain Support** - 8+ blockchain networks supported
+- 🤖 **AI-Native** - Natural language blockchain interactions
+- 🔒 **Secure** - Smart account abstraction with enhanced security
+- ⚡ **Instant Setup** - One-command Claude integration
+
+---
+
+## 🛠️ Available Tools
+
+| Tool | Description | Example Usage |
+|------|-------------|---------------|
+| 🏠 `get-address` | Retrieve your smart account address | *"What's my wallet address?"* |
+| 💰 `get-balance` | Check token balances (ERC20 support) | *"Show my USDC balance"* |
+| 📤 `transfer-token` | Send tokens gaslessly | *"Send 10 USDT to alice.eth"* |
+| 🔄 `swap-tokens` | Exchange tokens without gas | *"Swap 100 USDT for USDC"* |
+| 🎯 `buy-openrouter-credits` | Purchase AI credits with USDC | *"Buy $25 OpenRouter credits"* |
+
+---
+
+## 🚀 Quick Start
+
+### 📦 Installation
+
+Choose your preferred installation method:
 
 ```bash
-npm install -g 0xgasless-mcp-server
+# Global installation (recommended)
+npm install -g 0xgasless-mcp
+
+# Or use directly with npx
+npx 0xgasless-mcp
 ```
 
-### Local Installation
+### ⚙️ Configuration
 
-```bash
-npx 0xgasless-mcp-server
-```
-
-## ⚙️ Configuration
-
-### 1. Environment Variables
-
-Create a `.env` file with the following variables:
-
-```bash
-# Required
-PRIVATE_KEY=0x...                    # Your wallet private key
-RPC_URL=https://...                  # RPC endpoint for your chain
-API_KEY=your_0xgasless_api_key      # Get from https://dashboard.0xgasless.com
-CHAIN_ID=56                         # Chain ID (56=BSC, 8453=Base, 1=Ethereum, etc.)
-
-# Optional
-OPENROUTER_API_KEY=your_openrouter_key  # For buying OpenRouter credits
-```
-
-### 2. Get Your API Keys
-
-#### 0xGasless API Key
-1. Visit [0xGasless Dashboard](https://dashboard.0xgasless.com)
-2. Sign up and create a new project
-3. Copy your API key
-
-#### OpenRouter API Key (Optional)
-1. Visit [OpenRouter.ai](https://openrouter.ai)
-2. Sign up and go to API Keys
-3. Create a new API key
-
-### 3. Supported Networks
-
-| Network | Chain ID | Native Token |
-|---------|----------|--------------|
-| BSC | 56 | BNB |
-| Base | 8453 | ETH |
-| Ethereum | 1 | ETH |
-| Polygon | 137 | MATIC |
-| Avalanche | 43114 | AVAX |
-| Fantom | 250 | FTM |
-| Moonbeam | 1284 | GLMR |
-| Metis | 1088 | METIS |
-
-## 🔗 Claude Desktop Integration
-
-### Automatic Configuration
-
-Run the configuration helper:
+#### 1️⃣ Automatic Setup (Easiest)
 
 ```bash
 0xgasless-mcp configure
 ```
 
-### Manual Configuration
+This interactive command will:
+- ✅ Collect your API keys and configuration
+- ✅ Detect your operating system
+- ✅ Configure Claude Desktop automatically
+- ✅ Validate all inputs
 
-Add to your Claude Desktop config file:
+#### 2️⃣ Manual Environment Setup
 
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+Create a `.env` file with your configuration:
+
+```bash
+# 🔑 Required Configuration
+PRIVATE_KEY=0x...                    # Your wallet private key
+RPC_URL=https://...                  # Blockchain RPC endpoint
+API_KEY=your_0xgasless_api_key      # From dashboard.0xgasless.com
+CHAIN_ID=56                         # Target blockchain (see table below)
+
+# 🎯 Optional Configuration  
+OPENROUTER_API_KEY=your_key         # For AI credit purchases
+```
+
+---
+
+## 🌐 Supported Networks
+
+| 🌍 Network | 🆔 Chain ID | 💎 Native Token | 🔗 RPC Endpoint |
+|------------|-------------|-----------------|------------------|
+| 🟡 **BSC** | `56` | BNB | `https://bsc-dataseed.binance.org/` |
+| 🔵 **Base** | `8453` | ETH | `https://mainnet.base.org` |
+| ⚫ **Ethereum** | `1` | ETH | `https://eth.llamarpc.com` |
+| 🟣 **Polygon** | `137` | MATIC | `https://polygon-rpc.com` |
+| 🔴 **Avalanche** | `43114` | AVAX | `https://api.avax.network/ext/bc/C/rpc` |
+| 🔵 **Fantom** | `250` | FTM | `https://rpc.ftm.tools` |
+| 🌙 **Moonbeam** | `1284` | GLMR | `https://rpc.api.moonbeam.network` |
+| 🟢 **Metis** | `1088` | METIS | `https://andromeda.metis.io/?owner=1088` |
+
+---
+
+## 🔗 Claude Desktop Integration
+
+### 🎯 Automatic Configuration
+
+The easiest way to integrate with Claude Desktop:
+
+```bash
+0xgasless-mcp configure
+```
+
+### 📝 Manual Configuration
+
+Add to your Claude Desktop configuration file:
+
+**📍 Configuration Locations:**
+- 🍎 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- 🪟 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- 🐧 **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 ```json
 {
@@ -109,38 +135,64 @@ Add to your Claude Desktop config file:
 }
 ```
 
+---
+
 ## 💬 Usage Examples
 
-Once configured, you can use natural language with Claude:
+Once configured, interact with blockchain using natural language:
 
-### Check Balances
-- "What's my wallet balance?"
-- "Check my USDC balance"
-- "Show all my token balances"
+### 💰 Balance Inquiries
+```
+💬 "What's my wallet balance?"
+💬 "Check my USDC balance on BSC"
+💬 "Show all my token balances"
+```
 
-### Transfer Tokens
-- "Send 10 USDT to 0x..."
-- "Transfer 0.1 BNB to alice.eth"
+### 📤 Token Transfers
+```
+💬 "Send 10 USDT to 0x742d35Cc6634C0532925a3b8D4C9db96590b5c8e"
+💬 "Transfer 0.1 BNB to alice.eth"
+💬 "Send 50 USDC to my friend's wallet"
+```
 
-### Swap Tokens
-- "Swap 100 USDT for USDC"
-- "Exchange 0.5 BNB to WETH"
+### 🔄 Token Swaps
+```
+💬 "Swap 100 USDT for USDC"
+💬 "Exchange 0.5 BNB to WETH"
+💬 "Convert 1000 BUSD to BNB"
+```
 
-### Buy OpenRouter Credits
-- "Buy $10 worth of OpenRouter credits"
-- "Purchase $25 OpenRouter credits with USDC"
+### 🎯 AI Credit Purchases
+```
+💬 "Buy $10 worth of OpenRouter credits"
+💬 "Purchase $25 OpenRouter credits with USDC"
+```
 
-### Get Wallet Address
-- "What's my wallet address?"
-- "Show my smart account address"
+---
+
+## 🔑 API Keys Setup
+
+### 🎯 0xGasless API Key
+1. 🌐 Visit [0xGasless Dashboard](https://dashboard.0xgasless.com)
+2. 📝 Create an account and new project
+3. 🔑 Copy your API key
+4. 💳 Add credits to your account
+
+### 🤖 OpenRouter API Key (Optional)
+1. 🌐 Visit [OpenRouter.ai](https://openrouter.ai)
+2. 📝 Sign up and navigate to API Keys
+3. 🔑 Generate a new API key
+4. 💰 Add credits for AI model access
+
+---
 
 ## 🛠️ Development
 
-### Local Development
+### 🏗️ Local Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/0xgasless-mcp-server.git
+git clone https://github.com/achiit/0xgasless-mcp-server.git
 cd 0xgasless-mcp-server
 
 # Install dependencies
@@ -149,92 +201,152 @@ npm install
 # Build the project
 npm run build
 
-# Run in development mode
+# Development mode with hot reload
 npm run dev
 
 # Start the server
 npm start
 ```
 
-### Project Structure
+### 📁 Project Structure
 
 ```
 src/
-├── main.ts          # Main MCP server implementation
-├── index.ts         # Entry point
-├── version.ts       # Version information
-└── types/           # TypeScript type definitions
+├── 🎯 main.ts          # Core MCP server implementation
+├── 🚀 index.ts         # CLI entry point & configuration
+├── 📋 version.ts       # Version management
+└── 📝 types/           # TypeScript definitions
 ```
 
-## 🔐 Security Notes
+---
 
-- **Private Keys**: Never share your private key. Store it securely in environment variables.
-- **API Keys**: Keep your 0xGasless and OpenRouter API keys private.
-- **Smart Accounts**: Your smart account is derived from your private key but has enhanced security features.
-- **Gasless Operations**: All transactions are sponsored, so you don't need native tokens for gas.
+## 🔐 Security & Best Practices
+
+### 🛡️ Security Guidelines
+
+- 🔒 **Private Keys**: Store securely in environment variables, never in code
+- 🔑 **API Keys**: Keep 0xGasless and OpenRouter keys confidential
+- 🏦 **Smart Accounts**: Enhanced security through account abstraction
+- ⛽ **Gasless Operations**: No native tokens required for transactions
+
+### ⚠️ Important Notes
+
+- 🚫 Never share your private key with anyone
+- 💾 Use environment variables for sensitive data
+- 🔄 Regularly rotate your API keys
+- 📊 Monitor your account usage and credits
+
+---
 
 ## 🆘 Troubleshooting
 
-### Common Issues
+### 🐛 Common Issues & Solutions
 
-1. **"Chain ID not supported"**
-   - Ensure you're using a supported chain ID
-   - Check the supported networks table above
+<details>
+<summary>🔴 "Chain ID not supported"</summary>
 
-2. **"API Key invalid"**
-   - Verify your 0xGasless API key is correct
-   - Ensure you have sufficient credits in your 0xGasless account
+**Solution:**
+- ✅ Verify you're using a supported chain ID from the table above
+- ✅ Check the [supported networks](#-supported-networks) section
+</details>
 
-3. **"Insufficient balance"**
-   - Check your token balance before transfers/swaps
-   - Ensure you have enough tokens for the operation
+<details>
+<summary>🔴 "API Key invalid"</summary>
 
-4. **"Private key format error"**
-   - Ensure your private key starts with "0x"
-   - Verify the private key is 64 characters (plus "0x" prefix)
+**Solution:**
+- ✅ Verify your 0xGasless API key is correct
+- ✅ Ensure sufficient credits in your 0xGasless account
+- ✅ Check API key permissions and expiration
+</details>
 
-### Enable Debug Logging
+<details>
+<summary>🔴 "Insufficient balance"</summary>
 
-Set environment variable for detailed logs:
+**Solution:**
+- ✅ Check token balance before operations
+- ✅ Ensure you have enough tokens for the transaction
+- ✅ Verify token contract address is correct
+</details>
+
+<details>
+<summary>🔴 "Private key format error"</summary>
+
+**Solution:**
+- ✅ Ensure private key starts with "0x"
+- ✅ Verify it's exactly 66 characters (64 + "0x")
+- ✅ Check for any extra spaces or characters
+</details>
+
+### 🔍 Debug Mode
+
+Enable detailed logging for troubleshooting:
 
 ```bash
 DEBUG=1 0xgasless-mcp-server
 ```
 
+---
+
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions! Here's how to get started:
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+### 🚀 Quick Contribution Guide
 
-## 📝 License
+1. 🍴 **Fork** the repository
+2. 🌿 **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. 💾 **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. 📤 **Push** to branch: `git push origin feature/amazing-feature`
+5. 🔄 **Open** a Pull Request
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### 📋 Development Guidelines
 
-## 🙏 Acknowledgments
-
-- [0xGasless](https://0xgasless.com) for the smart account infrastructure
-- [Model Context Protocol](https://modelcontextprotocol.io) for the MCP specification
-- [Claude](https://claude.ai) for AI integration capabilities
-- [OpenRouter](https://openrouter.ai) for AI API access
-
-## 📚 Additional Resources
-
-- [0xGasless Documentation](https://docs.0xgasless.com)
-- [MCP Documentation](https://modelcontextprotocol.io/docs)
-- [Claude MCP Guide](https://docs.anthropic.com/claude/docs/mcp)
-
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/yourusername/0xgasless-mcp-server)
-- [npm Package](https://www.npmjs.com/package/0xgasless-mcp-server)
-- [Issues](https://github.com/yourusername/0xgasless-mcp-server/issues)
-- [Discussions](https://github.com/yourusername/0xgasless-mcp-server/discussions)
+- ✅ Follow TypeScript best practices
+- ✅ Add tests for new features
+- ✅ Update documentation as needed
+- ✅ Ensure all tests pass before submitting
 
 ---
 
-**Made with ❤️ for the blockchain community**
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Special thanks to the amazing teams and projects that make this possible:
+
+- 🎯 **[0xGasless](https://0xgasless.com)** - Smart account infrastructure
+- 🤖 **[Model Context Protocol](https://modelcontextprotocol.io)** - MCP specification
+- 🧠 **[Claude](https://claude.ai)** - AI integration capabilities  
+- 🌐 **[OpenRouter](https://openrouter.ai)** - AI API access platform
+
+---
+
+## 📚 Resources & Links
+
+### 📖 Documentation
+- 📘 [0xGasless Documentation](https://docs.0xgasless.com)
+- 📗 [MCP Documentation](https://modelcontextprotocol.io/docs)
+- 📙 [Claude MCP Guide](https://docs.anthropic.com/claude/docs/mcp)
+
+### 🔗 Project Links
+- 🏠 [GitHub Repository](https://github.com/achiit/0xgasless-mcp-server)
+- 📦 [npm Package](https://www.npmjs.com/package/0xgasless-mcp)
+- 🐛 [Report Issues](https://github.com/achiit/0xgasless-mcp-server/issues)
+- 💬 [Discussions](https://github.com/achiit/0xgasless-mcp-server/discussions)
+
+---
+
+<div align="center">
+
+**🚀 Made with ❤️ for the blockchain community**
+
+*Empowering AI-driven blockchain interactions*
+
+[![Follow on GitHub](https://img.shields.io/github/followers/achiit?style=social)](https://github.com/achiit)
+[![Star this repo](https://img.shields.io/github/stars/achiit/0xgasless-mcp-server?style=social)](https://github.com/achiit/0xgasless-mcp-server)
+
+</div>
