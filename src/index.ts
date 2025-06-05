@@ -37,7 +37,7 @@ Example:
   PRIVATE_KEY=0x... RPC_URL=https://... API_KEY=... CHAIN_ID=56 0xgasless-mcp
 
 For more information, visit:
-  https://github.com/yourusername/0xgasless-mcp-server
+  https://github.com/achiit/0xgasless-mcp-server
 `);
   process.exit(0);
 }
