@@ -33,7 +33,10 @@
         "bsc",
         "swap",
         "defi",
-        "account-abstraction"
+        "account-abstraction",
+        "debridge",
+        "sxt",
+        "space-and-time"
     ],
     "author": {
         "name": "21Coder's",
@@ -53,7 +56,7 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@0xgasless/agentkit": "^0.0.9",
+        "@0xgasless/agentkit": "^0.0.14",
         "@0xgasless/smart-account": "^0.0.13",
         "@modelcontextprotocol/sdk": "^0.6.0",
         "dotenv": "^16.4.5",
