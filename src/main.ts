@@ -90,6 +90,8 @@ const MCP_TO_AGENTKIT_MAPPING: Record<string, string> = {
   'get-balance': 'get_balance', 
   'transfer-token': 'smart_transfer',
   'swap-tokens': 'smart_swap',
+  'bridge-tokens': 'smart_bridge',
+  'sxt-query-data': 'execute_sxt_sql'
 };
 
 // Convert MCP arguments to AgentKit arguments
@@ -122,6 +124,24 @@ function convertMcpArgsToAgentkitArgs(mcpToolName: string, mcpArgs: any): any {
         amount: mcpArgs.amount
       };
 
+    case 'bridge-tokens':
+      return {
+        fromChainId: mcpArgs.fromChainId,
+        toChainId: mcpArgs.toChainId,
+        tokenInAddress: mcpArgs.tokenInAddress,
+        tokenOutAddress: mcpArgs.tokenOutAddress,
+        amount: mcpArgs.amount,
+        recipientAddress: mcpArgs.recipientAddress,
+        slippage: mcpArgs.slippage,
+        approveMax: mcpArgs.approveMax,
+        payProtocolFee: mcpArgs.payProtocolFee,
+      };
+
+    case 'sxt-query-data':
+      return {
+        sqlText: mcpArgs.query,
+      };
+
     default:
       return mcpArgs;
   }
@@ -129,33 +149,50 @@ function convertMcpArgsToAgentkitArgs(mcpToolName: string, mcpArgs: any): any {
 
 // Convert agentkit actions to MCP tools format
 function convertToMcpTools(): Tool[] {
-  return [
-    {
+
+  // Find the specific agentkit actions dynamically
+  const getAddressAction = agentkitActions.find(a => a.name === 'get_address');
+  const getBalanceAction = agentkitActions.find(a => a.name === 'get_balance');
+  const transferTokenAction = agentkitActions.find(a => a.name === 'smart_transfer');
+  const swapTokensAction = agentkitActions.find(a => a.name === 'smart_swap');
+  const smartBridgeAction = agentkitActions.find(a => a.name === 'smart_bridge');
+  const sxtSqlAction = agentkitActions.find(a => a.name === 'execute_sxt_sql');
+
+  const tools: Tool[] = [];
+
+  if (getAddressAction) {
+    tools.push({
       name: 'get-address',
-      description: 'Gets the smart account wallet address',
+      description: getAddressAction.description,
       inputSchema: {
         type: 'object',
         properties: {},
         required: []
       },
-    },
-    {
+    });
+  }
+
+  if (getBalanceAction) {
+    tools.push({
       name: 'get-balance',
-      description: 'Gets the balance of tokens in the smart account on BSC',
+      description: getBalanceAction.description,
       inputSchema: {
         type: 'object',
         properties: {
           address: {
             type: 'string',
-            description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token like BNB/ETH)',
+            description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)',
           },
         },
         required: [],
       },
-    },
-    {
+    });
+  }
+
+  if (transferTokenAction) {
+    tools.push({
       name: 'transfer-token',
-      description: 'Transfer tokens gaslessly to another address',
+      description: transferTokenAction.description,
       inputSchema: {
         type: 'object',
         properties: {
@@ -174,10 +211,13 @@ function convertToMcpTools(): Tool[] {
         },
         required: ['to', 'address', 'amount'],
       },
-    },
-    {
+    });
+  }
+
+  if (swapTokensAction) {
+    tools.push({
       name: 'swap-tokens',
-      description: 'Swap one token for another gaslessly',
+      description: swapTokensAction.description,
       inputSchema: {
         type: 'object',
         properties: {
@@ -196,8 +236,77 @@ function convertToMcpTools(): Tool[] {
         },
         required: ['fromToken', 'toToken', 'amount'],
       },
-    },
-  ];
+    });
+  }
+
+  if (smartBridgeAction) {
+    tools.push({
+      name: 'bridge-tokens',
+      description: smartBridgeAction.description,
+      inputSchema: {
+        type: 'object',
+        properties: {
+          fromChainId: {
+            type: 'number',
+            description: 'The ID of the source chain (e.g., 1 for Ethereum)',
+          },
+          toChainId: {
+            type: 'number',
+            description: 'The ID of the destination chain (e.g., 137 for Polygon)',
+          },
+          tokenInAddress: {
+            type: 'string',
+            description: 'The address of the input token on the source chain',
+          },
+          tokenOutAddress: {
+            type: 'string',
+            description: 'The address of the output token on the destination chain',
+          },
+          amount: {
+            type: 'string',
+            description: 'The amount of input token to bridge (human-readable, e.g., \'100\')',
+          },
+          recipientAddress: {
+            type: 'string',
+            description: 'Optional: The address to receive tokens on the destination chain. Defaults to your wallet address.',
+          },
+          slippage: {
+            type: 'string',
+            description: 'Optional: Slippage tolerance in percentage (e.g., \'0.5\' for 0.5%). Default is \'1\'.',
+          },
+          approveMax: {
+            type: 'boolean',
+            description: 'Optional: Whether to approve maximum token allowance for the input token. Default is false.',
+          },
+          payProtocolFee: {
+            type: 'boolean',
+            description: 'Optional: Whether to include the deBridge protocol fee. Default is true. Smart account needs NATIVE currency for this.',
+          },
+        },
+        required: ['fromChainId', 'toChainId', 'tokenInAddress', 'tokenOutAddress', 'amount'],
+      },
+    });
+  }
+
+  if (sxtSqlAction) {
+    tools.push({
+      name: 'sxt-query-data',
+      description: sxtSqlAction.description + 
+        '\n\nNote: This tool requires the SXT_API_KEY environment variable to be set.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'The SQL query to execute.',
+          },
+        },
+        required: ['query'],
+      },
+    });
+  }
+
+  return tools;
 }
 
 // Execute agentkit actions directly

@@ -1,4 +1,3 @@
-
 # 🚀 0xGasless MCP Server
 
 
@@ -35,6 +34,8 @@ The **0xGasless MCP Server** is a powerful [Model Context Protocol](https://mode
 | 📤 `transfer-token` | Send tokens gaslessly | *"Send 10 USDT to alice.eth"* |
 | 🔄 `swap-tokens` | Exchange tokens without gas | *"Swap 100 USDT for USDC"* |
 | 🎯 `buy-openrouter-credits` | Purchase AI credits with USDC | *"Buy $25 OpenRouter credits"* |
+| 🌉 `bridge-tokens` | Bridge tokens across chains using deBridge | *"Bridge 100 USDC from Avalanche to Ethereum"* |
+| 📊 `sxt-query-data` | Query blockchain data using Space and Time | *"Show my transaction history"* |
 
 ---
 

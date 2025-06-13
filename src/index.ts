@@ -30,11 +30,11 @@ Environment Variables Required:
   PRIVATE_KEY             Your wallet private key (0x...)
   RPC_URL                 RPC endpoint URL
   API_KEY                 0xGasless API key
-  CHAIN_ID                Chain ID (56=BSC, 8453=Base, etc.)
+  CHAIN_ID                Chain ID (43114=Avalanche, 56=BSC, 8453=Base, etc.)
   OPENROUTER_API_KEY      OpenRouter API key (optional)
 
 Example:
-  PRIVATE_KEY=0x... RPC_URL=https://... API_KEY=... CHAIN_ID=56 0xgasless-mcp
+  PRIVATE_KEY=0x... RPC_URL=https://... API_KEY=... CHAIN_ID=43114 0xgasless-mcp
 
 For more information, visit:
   https://github.com/achiit/0xgasless-mcp-server
@@ -108,7 +108,7 @@ This will help you configure Claude Desktop to use 0xGasless MCP Server.
       process.exit(1);
     }
 
-    const chainIdInput = await question('Chain ID (56 for BSC, 8453 for Base, etc.): ');
+    const chainIdInput = await question('Chain ID (43114=Avalanche, 56 for BSC, 8453 for Base, etc.): ');
     const chainId = chainIdInput || '56';
 
     const openRouterKey = await question('OpenRouter API Key (optional, press Enter to skip): ');
