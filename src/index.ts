@@ -31,13 +31,14 @@ Environment Variables Required:
   RPC_URL                 RPC endpoint URL
   API_KEY                 0xGasless API key
   CHAIN_ID                Chain ID (43114=Avalanche, 56=BSC, 8453=Base, etc.)
+  SXT_API_KEY             Space and Time api key for blockchain data queries
   OPENROUTER_API_KEY      OpenRouter API key (optional)
 
 Example:
   PRIVATE_KEY=0x... RPC_URL=https://... API_KEY=... CHAIN_ID=43114 0xgasless-mcp
 
 For more information, visit:
-  https://github.com/achiit/0xgasless-mcp-server
+  https://github.com/0xgasless/mcp
 `);
   process.exit(0);
 }
@@ -111,6 +112,8 @@ This will help you configure Claude Desktop to use 0xGasless MCP Server.
     const chainIdInput = await question('Chain ID (43114=Avalanche, 56 for BSC, 8453 for Base, etc.): ');
     const chainId = chainIdInput || '56';
 
+    const sxtApiKey = await question('SXT Api key (sxt_.....)');
+
     const openRouterKey = await question('OpenRouter API Key (optional, press Enter to skip): ');
 
     // Prepare the configuration
@@ -122,6 +125,7 @@ This will help you configure Claude Desktop to use 0xGasless MCP Server.
         RPC_URL: rpcUrl,
         API_KEY: apiKey,
         CHAIN_ID: chainId,
+        SXT_API_KEY: sxtApiKey,
         ...(openRouterKey && { OPENROUTER_API_KEY: openRouterKey })
       }
     };
@@ -200,9 +204,8 @@ function getChainName(chainId: string): string {
     '137': 'Polygon',
     '8453': 'Base',
     '43114': 'Avalanche',
-    '250': 'Fantom',
     '1284': 'Moonbeam',
-    '1088': 'Metis'
+    '146': 'Sonic',
   };
   return chains[chainId] || `Chain ${chainId}`;
 }
