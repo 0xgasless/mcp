@@ -43,14 +43,11 @@ The **0xGasless MCP Server** is a powerful [Model Context Protocol](https://mode
 
 ### 📦 Installation
 
-Choose your preferred installation method:
+Preferred installation method:
 
 ```bash
 # Global installation (recommended)
-npm install -g 0xgasless-mcp
-
-# Or use directly with npx
-npx 0xgasless-mcp
+npm install -g 0xgasless/mcp
 ```
 
 ### ⚙️ Configuration
@@ -73,29 +70,28 @@ Create a `.env` file with your configuration:
 
 ```bash
 # 🔑 Required Configuration
-PRIVATE_KEY=0x...                    # Your wallet private key
-RPC_URL=https://...                  # Blockchain RPC endpoint
+PRIVATE_KEY=0x...                   # Your wallet private key
+RPC_URL=https://...                 # Blockchain RPC endpoint
 API_KEY=your_0xgasless_api_key      # From dashboard.0xgasless.com
-CHAIN_ID=56                         # Target blockchain (see table below)
+CHAIN_ID=43114                      # Target blockchain (see table below)
+SXT_API_KEY=                        # Space & Time Api Key
 
 # 🎯 Optional Configuration  
 OPENROUTER_API_KEY=your_key         # For AI credit purchases
 ```
-
 ---
 
 ## 🌐 Supported Networks
 
 | 🌍 Network | 🆔 Chain ID | 💎 Native Token | 🔗 RPC Endpoint |
 |------------|-------------|-----------------|------------------|
+| 🔴 **Avalanche** | `43114` | AVAX | `https://api.avax.network/ext/bc/C/rpc` |
 | 🟡 **BSC** | `56` | BNB | `https://bsc-dataseed.binance.org/` |
 | 🔵 **Base** | `8453` | ETH | `https://mainnet.base.org` |
 | ⚫ **Ethereum** | `1` | ETH | `https://eth.llamarpc.com` |
 | 🟣 **Polygon** | `137` | MATIC | `https://polygon-rpc.com` |
-| 🔴 **Avalanche** | `43114` | AVAX | `https://api.avax.network/ext/bc/C/rpc` |
-| 🔵 **Fantom** | `250` | FTM | `https://rpc.ftm.tools` |
+| 🔵 **Sonic** | `156` | S | `https://sonic.drpc.org` |
 | 🌙 **Moonbeam** | `1284` | GLMR | `https://rpc.api.moonbeam.network` |
-| 🟢 **Metis** | `1088` | METIS | `https://andromeda.metis.io/?owner=1088` |
 
 ---
 
@@ -128,7 +124,8 @@ Add to your Claude Desktop configuration file:
         "PRIVATE_KEY": "0x...",
         "RPC_URL": "https://...",
         "API_KEY": "your_0xgasless_api_key",
-        "CHAIN_ID": "56",
+        "CHAIN_ID": "43114",
+        "SXT_API_KEY": "your_space_&_time_api_key",
         "OPENROUTER_API_KEY": "your_openrouter_key"
       }
     }
@@ -163,6 +160,11 @@ Once configured, interact with blockchain using natural language:
 💬 "Convert 1000 BUSD to BNB"
 ```
 
+### 📝 Space & Time info
+```
+💬 "Find top 10 whale wallets who is doing millions of transactions yearly on Avalanche"
+```
+
 ### 🎯 AI Credit Purchases
 ```
 💬 "Buy $10 worth of OpenRouter credits"
@@ -193,8 +195,8 @@ Once configured, interact with blockchain using natural language:
 
 ```bash
 # Clone the repository
-git clone https://github.com/achiit/0xgasless-mcp-server.git
-cd 0xgasless-mcp-server
+git clone https://github.com/0xgasless/mcp
+cd mcp
 
 # Install dependencies
 npm install
@@ -283,7 +285,7 @@ src/
 Enable detailed logging for troubleshooting:
 
 ```bash
-DEBUG=1 0xgasless-mcp-server
+DEBUG=1 mcp
 ```
 
 ---
@@ -334,10 +336,10 @@ Special thanks to the amazing teams and projects that make this possible:
 - 📙 [Claude MCP Guide](https://docs.anthropic.com/claude/docs/mcp)
 
 ### 🔗 Project Links
-- 🏠 [GitHub Repository](https://github.com/achiit/0xgasless-mcp-server)
+- 🏠 [GitHub Repository](https://github.com/0xgasless/mcp)
 - 📦 [npm Package](https://www.npmjs.com/package/0xgasless-mcp)
-- 🐛 [Report Issues](https://github.com/achiit/0xgasless-mcp-server/issues)
-- 💬 [Discussions](https://github.com/achiit/0xgasless-mcp-server/discussions)
+- 🐛 [Report Issues](https://github.com/0xgasless/mcp/issues)
+- 💬 [Discussions](https://github.com/0xgasless/mcp/discussions)
 
 ---
 
@@ -347,7 +349,7 @@ Special thanks to the amazing teams and projects that make this possible:
 
 *Empowering AI-driven blockchain interactions*
 
-[![Follow on GitHub](https://img.shields.io/github/followers/achiit?style=social)](https://github.com/achiit)
-[![Star this repo](https://img.shields.io/github/stars/achiit/0xgasless-mcp-server?style=social)](https://github.com/achiit/0xgasless-mcp-server)
+[![Follow on GitHub]](https://github.com/0xgasless)
+[![Star this repo]](https://github.com/0xgasless/mcp)
 
 </div>

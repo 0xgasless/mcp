@@ -2,6 +2,7 @@
     "name": "0xgasless-mcp",
     "version": "1.0.4",
     "description": "MCP server for 0xGasless smart accounts with gasless blockchain operations. Directly connects to Claude Desktop",
+    "type": "module",
     "main": "dist/index.js",
     "bin": {
         "0xgasless-mcp": "dist/index.js"
@@ -39,29 +40,29 @@
         "space-and-time"
     ],
     "author": {
-        "name": "21Coder's",
-        "email": "achihsingh@gmail.com",
-        "url": "https://github.com/achiit"
+        "name": "0xgasless",
+        "email": "support@0xgasless.com",
+        "url": "https://github.com/0xgasless"
     },
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/achiit/0xgasless-mcp-server.git"
+        "url": "https://github.com/0xgasless/mcp.git"
     },
     "bugs": {
-        "url": "https://github.com/achiit/0xgasless-mcp-server/issues"
+        "url": "https://github.com/0xgasless/mcp/issues"
     },
-    "homepage": "https://github.com/achiit/0xgasless-mcp-server#readme",
+    "homepage": "https://github.com/0xgasless/mcp#readme",
     "engines": {
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@0xgasless/agentkit": "^0.0.14",
+        "@0xgasless/agentkit": "^0.0.16",
         "@0xgasless/smart-account": "^0.0.13",
         "@modelcontextprotocol/sdk": "^0.6.0",
         "dotenv": "^16.4.5",
-        "viem": "^2.22.17",
         "tslib": "^2.8.1",
+        "viem": "^2.22.17",
         "zod": "^3.23.8"
     },
     "devDependencies": {

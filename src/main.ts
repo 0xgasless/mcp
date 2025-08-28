@@ -91,7 +91,9 @@ const MCP_TO_AGENTKIT_MAPPING: Record<string, string> = {
   'transfer-token': 'smart_transfer',
   'swap-tokens': 'smart_swap',
   'bridge-tokens': 'smart_bridge',
-  'sxt-query-data': 'execute_sxt_sql'
+  'sxt-query-data': 'execute_sxt_sql',
+  'get-eoa-address': 'get_eoa_address',
+  'get-eoa-balance': 'get_eoa_balance'
 };
 
 // Convert MCP arguments to AgentKit arguments
@@ -99,14 +101,20 @@ function convertMcpArgsToAgentkitArgs(mcpToolName: string, mcpArgs: any): any {
   switch (mcpToolName) {
     case 'get-address':
       return {};
+    case 'get-eoa-address':
+      return {};
 
     case 'get-balance':
       if (mcpArgs.address === '0x0000000000000000000000000000000000000000') {
         return {};
       } else if (mcpArgs.address) {
-        return {
-          tokenAddresses: [mcpArgs.address]
-        };
+        return { tokenAddresses: [mcpArgs.address] };
+      }
+      return {};
+
+    case 'get-eoa-balance':
+      if (Array.isArray(mcpArgs.tokenAddresses) && mcpArgs.tokenAddresses.length > 0) {
+        return { tokenAddresses: mcpArgs.tokenAddresses };
       }
       return {};
 
@@ -118,11 +126,7 @@ function convertMcpArgsToAgentkitArgs(mcpToolName: string, mcpArgs: any): any {
       };
 
     case 'swap-tokens':
-      return {
-        tokenIn: mcpArgs.fromToken,
-        tokenOut: mcpArgs.toToken,
-        amount: mcpArgs.amount
-      };
+      return { tokenIn: mcpArgs.fromToken, tokenOut: mcpArgs.toToken, amount: mcpArgs.amount };
 
     case 'bridge-tokens':
       return {
@@ -138,9 +142,7 @@ function convertMcpArgsToAgentkitArgs(mcpToolName: string, mcpArgs: any): any {
       };
 
     case 'sxt-query-data':
-      return {
-        sqlText: mcpArgs.query,
-      };
+      return { sqlText: mcpArgs.query };
 
     default:
       return mcpArgs;
@@ -157,6 +159,8 @@ function convertToMcpTools(): Tool[] {
   const swapTokensAction = agentkitActions.find(a => a.name === 'smart_swap');
   const smartBridgeAction = agentkitActions.find(a => a.name === 'smart_bridge');
   const sxtSqlAction = agentkitActions.find(a => a.name === 'execute_sxt_sql');
+  const getEoaAddressAction = agentkitActions.find(a => a.name === 'get_eoa_address');
+  const getEoaBalanceAction = agentkitActions.find(a => a.name === 'get_eoa_balance');
 
   const tools: Tool[] = [];
 
@@ -164,11 +168,15 @@ function convertToMcpTools(): Tool[] {
     tools.push({
       name: 'get-address',
       description: getAddressAction.description,
-      inputSchema: {
-        type: 'object',
-        properties: {},
-        required: []
-      },
+      inputSchema: { type: 'object', properties: {}, required: [] },
+    });
+  }
+
+  if (getEoaAddressAction) {
+    tools.push({
+      name: 'get-eoa-address',
+      description: getEoaAddressAction.description + '\n\nNote: Set USE_EOA=true in env to run EOA flows.',
+      inputSchema: { type: 'object', properties: {}, required: [] },
     });
   }
 
@@ -181,10 +189,28 @@ function convertToMcpTools(): Tool[] {
         properties: {
           address: {
             type: 'string',
-            description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)',
-          },
+            description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)'
+          }
         },
-        required: [],
+        required: []
+      },
+    });
+  }
+
+  if (getEoaBalanceAction) {
+    tools.push({
+      name: 'get-eoa-balance',
+      description: getEoaBalanceAction.description + '\n\nNote: Set USE_EOA=true in env to run EOA flows.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          tokenAddresses: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Optional ERC-20 token addresses to query'
+          }
+        },
+        required: []
       },
     });
   }
@@ -192,24 +218,15 @@ function convertToMcpTools(): Tool[] {
   if (transferTokenAction) {
     tools.push({
       name: 'transfer-token',
-      description: transferTokenAction.description,
+      description: transferTokenAction.description + '\n\nNote: Set USE_EOA=true to send from EOA (pays own gas).',
       inputSchema: {
         type: 'object',
         properties: {
-          to: {
-            type: 'string',
-            description: 'Recipient address',
-          },
-          address: {
-            type: 'string',
-            description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)',
-          },
-          amount: {
-            type: 'string',
-            description: 'Amount to transfer',
-          },
+          to: { type: 'string', description: 'Recipient address' },
+          address: { type: 'string', description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)' },
+          amount: { type: 'string', description: 'Amount to transfer' }
         },
-        required: ['to', 'address', 'amount'],
+        required: ['to', 'address', 'amount']
       },
     });
   }
@@ -217,24 +234,15 @@ function convertToMcpTools(): Tool[] {
   if (swapTokensAction) {
     tools.push({
       name: 'swap-tokens',
-      description: swapTokensAction.description,
+      description: swapTokensAction.description + '\n\nNote: Set USE_EOA=true to route via EOA where supported.',
       inputSchema: {
         type: 'object',
         properties: {
-          fromToken: {
-            type: 'string',
-            description: 'Source token address',
-          },
-          toToken: {
-            type: 'string',
-            description: 'Destination token address',
-          },
-          amount: {
-            type: 'string',
-            description: 'Amount to swap',
-          },
+          fromToken: { type: 'string', description: 'Source token address' },
+          toToken: { type: 'string', description: 'Destination token address' },
+          amount: { type: 'string', description: 'Amount to swap' }
         },
-        required: ['fromToken', 'toToken', 'amount'],
+        required: ['fromToken', 'toToken', 'amount']
       },
     });
   }
@@ -246,44 +254,17 @@ function convertToMcpTools(): Tool[] {
       inputSchema: {
         type: 'object',
         properties: {
-          fromChainId: {
-            type: 'number',
-            description: 'The ID of the source chain (e.g., 1 for Ethereum)',
-          },
-          toChainId: {
-            type: 'number',
-            description: 'The ID of the destination chain (e.g., 137 for Polygon)',
-          },
-          tokenInAddress: {
-            type: 'string',
-            description: 'The address of the input token on the source chain',
-          },
-          tokenOutAddress: {
-            type: 'string',
-            description: 'The address of the output token on the destination chain',
-          },
-          amount: {
-            type: 'string',
-            description: 'The amount of input token to bridge (human-readable, e.g., \'100\')',
-          },
-          recipientAddress: {
-            type: 'string',
-            description: 'Optional: The address to receive tokens on the destination chain. Defaults to your wallet address.',
-          },
-          slippage: {
-            type: 'string',
-            description: 'Optional: Slippage tolerance in percentage (e.g., \'0.5\' for 0.5%). Default is \'1\'.',
-          },
-          approveMax: {
-            type: 'boolean',
-            description: 'Optional: Whether to approve maximum token allowance for the input token. Default is false.',
-          },
-          payProtocolFee: {
-            type: 'boolean',
-            description: 'Optional: Whether to include the deBridge protocol fee. Default is true. Smart account needs NATIVE currency for this.',
-          },
+          fromChainId: { type: 'number', description: 'The ID of the source chain (e.g., 1 for Ethereum)' },
+          toChainId: { type: 'number', description: 'The ID of the destination chain (e.g., 137 for Polygon)' },
+          tokenInAddress: { type: 'string', description: 'The address of the input token on the source chain' },
+          tokenOutAddress: { type: 'string', description: 'The address of the output token on the destination chain' },
+          amount: { type: 'string', description: 'The amount of input token to bridge (human-readable, e.g., \'100\')' },
+          recipientAddress: { type: 'string', description: 'Optional destination recipient, defaults to your wallet' },
+          slippage: { type: 'string', description: 'Optional slippage percentage, default 1' },
+          approveMax: { type: 'boolean', description: 'Optional approve max allowance' },
+          payProtocolFee: { type: 'boolean', description: 'Optional include deBridge protocol fee (requires native balance)'}
         },
-        required: ['fromChainId', 'toChainId', 'tokenInAddress', 'tokenOutAddress', 'amount'],
+        required: ['fromChainId', 'toChainId', 'tokenInAddress', 'tokenOutAddress', 'amount']
       },
     });
   }
@@ -291,17 +272,11 @@ function convertToMcpTools(): Tool[] {
   if (sxtSqlAction) {
     tools.push({
       name: 'sxt-query-data',
-      description: sxtSqlAction.description + 
-        '\n\nNote: This tool requires the SXT_API_KEY environment variable to be set.',
+      description: sxtSqlAction.description + '\n\nNote: Requires SXT_API_KEY in env.' ,
       inputSchema: {
         type: 'object',
-        properties: {
-          query: {
-            type: 'string',
-            description: 'The SQL query to execute.',
-          },
-        },
-        required: ['query'],
+        properties: { query: { type: 'string', description: 'The SQL query to execute.' } },
+        required: ['query']
       },
     });
   }
@@ -417,6 +392,12 @@ export async function main() {
 
   // Handle tools list
   server.setRequestHandler(ListToolsRequestSchema, async () => {
+    // Ensure Agentkit and actions are initialized before listing tools
+    try {
+      await initializeAgentkit();
+    } catch (e) {
+      console.error('❌ initializeAgentkit failed during tools/list:', e);
+    }
     const mcpTools = convertToMcpTools();
     return { tools: mcpTools };
   });
