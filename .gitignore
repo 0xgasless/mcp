@@ -28,7 +28,7 @@ Thumbs.db
 # Logs
 logs/
 *.log
-
+s
 # Coverage
 coverage/
 .nyc_output/
@@ -36,3 +36,4 @@ coverage/
 # Temporary files
 tmp/
 temp/bun.lockb
+config.json

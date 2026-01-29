@@ -57,7 +57,7 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@0xgasless/agentkit": "^0.0.16",
+        "@0xgasless/agentkit": "file:../agentkit/agentkit-core",
         "@0xgasless/smart-account": "^0.0.13",
         "@modelcontextprotocol/sdk": "^0.6.0",
         "dotenv": "^16.4.5",

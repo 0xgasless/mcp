@@ -71,7 +71,10 @@ async function initializeAgentkit() {
 
     // Get all available actions from the agentkit
     const actions = getAllAgentkitActions();
-    console.error(`📦 Found ${actions.length} agentkit actions`);
+    console.error(`📦 Found ${actions.length} agentkit actions:`);
+    actions.forEach((action: any) => {
+      console.error(`   - ${action.name}: ${action.description.substring(0, 60)}...`);
+    });
 
     agentkitInstance = agentkit;
     agentkitActions = actions;
@@ -84,249 +87,151 @@ async function initializeAgentkit() {
   }
 }
 
-// Tool name mapping between MCP and AgentKit
-const MCP_TO_AGENTKIT_MAPPING: Record<string, string> = {
-  'get-address': 'get_address',
-  'get-balance': 'get_balance', 
-  'transfer-token': 'smart_transfer',
-  'swap-tokens': 'smart_swap',
-  'bridge-tokens': 'smart_bridge',
-  'sxt-query-data': 'execute_sxt_sql',
-  'get-eoa-address': 'get_eoa_address',
-  'get-eoa-balance': 'get_eoa_balance'
-};
+// Convert action name to MCP tool name (snake_case to kebab-case)
+function toMcpToolName(actionName: string): string {
+  return actionName.replace(/_/g, '-');
+}
 
-// Convert MCP arguments to AgentKit arguments
-function convertMcpArgsToAgentkitArgs(mcpToolName: string, mcpArgs: any): any {
-  switch (mcpToolName) {
-    case 'get-address':
-      return {};
-    case 'get-eoa-address':
-      return {};
+// Convert MCP tool name back to action name (kebab-case to snake_case)
+function toActionName(mcpToolName: string): string {
+  return mcpToolName.replace(/-/g, '_');
+}
 
-    case 'get-balance':
-      if (mcpArgs.address === '0x0000000000000000000000000000000000000000') {
-        return {};
-      } else if (mcpArgs.address) {
-        return { tokenAddresses: [mcpArgs.address] };
+// Convert Zod schema to JSON Schema for MCP
+function zodToJsonSchema(zodSchema: any): any {
+  try {
+    // Get the shape of the Zod schema if it's an object
+    if (zodSchema && zodSchema._def) {
+      const def = zodSchema._def;
+      
+      // Handle ZodObject
+      if (def.typeName === 'ZodObject' && def.shape) {
+        const properties: Record<string, any> = {};
+        const required: string[] = [];
+        
+        const shape = typeof def.shape === 'function' ? def.shape() : def.shape;
+        
+        for (const [key, value] of Object.entries(shape)) {
+          const fieldDef = (value as any)?._def;
+          if (!fieldDef) continue;
+          
+          // Determine the type
+          let type = 'string';
+          let description = fieldDef.description || '';
+          let isOptional = false;
+          
+          // Unwrap ZodOptional
+          let innerDef = fieldDef;
+          if (fieldDef.typeName === 'ZodOptional') {
+            isOptional = true;
+            innerDef = fieldDef.innerType?._def || fieldDef;
+          }
+          
+          // Determine type from inner definition
+          switch (innerDef.typeName) {
+            case 'ZodString':
+              type = 'string';
+              break;
+            case 'ZodNumber':
+              type = 'number';
+              break;
+            case 'ZodBoolean':
+              type = 'boolean';
+              break;
+            case 'ZodArray':
+              type = 'array';
+              break;
+            default:
+              type = 'string';
+          }
+          
+          properties[key] = { type, description };
+          
+          if (!isOptional) {
+            required.push(key);
+          }
+        }
+        
+        return {
+          type: 'object',
+          properties,
+          required: required.length > 0 ? required : undefined
+        };
       }
-      return {};
-
-    case 'get-eoa-balance':
-      if (Array.isArray(mcpArgs.tokenAddresses) && mcpArgs.tokenAddresses.length > 0) {
-        return { tokenAddresses: mcpArgs.tokenAddresses };
-      }
-      return {};
-
-    case 'transfer-token':
-      return {
-        amount: mcpArgs.amount,
-        tokenAddress: mcpArgs.address === '0x0000000000000000000000000000000000000000' ? 'eth' : mcpArgs.address,
-        destination: mcpArgs.to
-      };
-
-    case 'swap-tokens':
-      return { tokenIn: mcpArgs.fromToken, tokenOut: mcpArgs.toToken, amount: mcpArgs.amount };
-
-    case 'bridge-tokens':
-      return {
-        fromChainId: mcpArgs.fromChainId,
-        toChainId: mcpArgs.toChainId,
-        tokenInAddress: mcpArgs.tokenInAddress,
-        tokenOutAddress: mcpArgs.tokenOutAddress,
-        amount: mcpArgs.amount,
-        recipientAddress: mcpArgs.recipientAddress,
-        slippage: mcpArgs.slippage,
-        approveMax: mcpArgs.approveMax,
-        payProtocolFee: mcpArgs.payProtocolFee,
-      };
-
-    case 'sxt-query-data':
-      return { sqlText: mcpArgs.query };
-
-    default:
-      return mcpArgs;
+    }
+    
+    // Fallback for unknown schemas
+    return { type: 'object', properties: {} };
+  } catch (error) {
+    console.error("Error converting Zod schema:", error);
+    return { type: 'object', properties: {} };
   }
 }
 
-// Convert agentkit actions to MCP tools format
+// Convert agentkit actions to MCP tools format - DYNAMIC
 function convertToMcpTools(): Tool[] {
-
-  // Find the specific agentkit actions dynamically
-  const getAddressAction = agentkitActions.find(a => a.name === 'get_address');
-  const getBalanceAction = agentkitActions.find(a => a.name === 'get_balance');
-  const transferTokenAction = agentkitActions.find(a => a.name === 'smart_transfer');
-  const swapTokensAction = agentkitActions.find(a => a.name === 'smart_swap');
-  const smartBridgeAction = agentkitActions.find(a => a.name === 'smart_bridge');
-  const sxtSqlAction = agentkitActions.find(a => a.name === 'execute_sxt_sql');
-  const getEoaAddressAction = agentkitActions.find(a => a.name === 'get_eoa_address');
-  const getEoaBalanceAction = agentkitActions.find(a => a.name === 'get_eoa_balance');
-
   const tools: Tool[] = [];
 
-  if (getAddressAction) {
-    tools.push({
-      name: 'get-address',
-      description: getAddressAction.description,
-      inputSchema: { type: 'object', properties: {}, required: [] },
-    });
+  for (const action of agentkitActions) {
+    try {
+      const mcpToolName = toMcpToolName(action.name);
+      const inputSchema = zodToJsonSchema(action.schema);
+      
+      tools.push({
+        name: mcpToolName,
+        description: action.description || `Execute ${action.name} action`,
+        inputSchema: inputSchema,
+      });
+    } catch (error) {
+      console.error(`Failed to convert action ${action.name}:`, error);
+    }
   }
 
-  if (getEoaAddressAction) {
-    tools.push({
-      name: 'get-eoa-address',
-      description: getEoaAddressAction.description + '\n\nNote: Set USE_EOA=true in env to run EOA flows.',
-      inputSchema: { type: 'object', properties: {}, required: [] },
-    });
-  }
-
-  if (getBalanceAction) {
-    tools.push({
-      name: 'get-balance',
-      description: getBalanceAction.description,
-      inputSchema: {
-        type: 'object',
-        properties: {
-          address: {
-            type: 'string',
-            description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)'
-          }
-        },
-        required: []
-      },
-    });
-  }
-
-  if (getEoaBalanceAction) {
-    tools.push({
-      name: 'get-eoa-balance',
-      description: getEoaBalanceAction.description + '\n\nNote: Set USE_EOA=true in env to run EOA flows.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          tokenAddresses: {
-            type: 'array',
-            items: { type: 'string' },
-            description: 'Optional ERC-20 token addresses to query'
-          }
-        },
-        required: []
-      },
-    });
-  }
-
-  if (transferTokenAction) {
-    tools.push({
-      name: 'transfer-token',
-      description: transferTokenAction.description + '\n\nNote: Set USE_EOA=true to send from EOA (pays own gas).',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          to: { type: 'string', description: 'Recipient address' },
-          address: { type: 'string', description: 'Token contract address (use "0x0000000000000000000000000000000000000000" for native token)' },
-          amount: { type: 'string', description: 'Amount to transfer' }
-        },
-        required: ['to', 'address', 'amount']
-      },
-    });
-  }
-
-  if (swapTokensAction) {
-    tools.push({
-      name: 'swap-tokens',
-      description: swapTokensAction.description + '\n\nNote: Set USE_EOA=true to route via EOA where supported.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          fromToken: { type: 'string', description: 'Source token address' },
-          toToken: { type: 'string', description: 'Destination token address' },
-          amount: { type: 'string', description: 'Amount to swap' }
-        },
-        required: ['fromToken', 'toToken', 'amount']
-      },
-    });
-  }
-
-  if (smartBridgeAction) {
-    tools.push({
-      name: 'bridge-tokens',
-      description: smartBridgeAction.description,
-      inputSchema: {
-        type: 'object',
-        properties: {
-          fromChainId: { type: 'number', description: 'The ID of the source chain (e.g., 1 for Ethereum)' },
-          toChainId: { type: 'number', description: 'The ID of the destination chain (e.g., 137 for Polygon)' },
-          tokenInAddress: { type: 'string', description: 'The address of the input token on the source chain' },
-          tokenOutAddress: { type: 'string', description: 'The address of the output token on the destination chain' },
-          amount: { type: 'string', description: 'The amount of input token to bridge (human-readable, e.g., \'100\')' },
-          recipientAddress: { type: 'string', description: 'Optional destination recipient, defaults to your wallet' },
-          slippage: { type: 'string', description: 'Optional slippage percentage, default 1' },
-          approveMax: { type: 'boolean', description: 'Optional approve max allowance' },
-          payProtocolFee: { type: 'boolean', description: 'Optional include deBridge protocol fee (requires native balance)'}
-        },
-        required: ['fromChainId', 'toChainId', 'tokenInAddress', 'tokenOutAddress', 'amount']
-      },
-    });
-  }
-
-  if (sxtSqlAction) {
-    tools.push({
-      name: 'sxt-query-data',
-      description: sxtSqlAction.description + '\n\nNote: Requires SXT_API_KEY in env.' ,
-      inputSchema: {
-        type: 'object',
-        properties: { query: { type: 'string', description: 'The SQL query to execute.' } },
-        required: ['query']
-      },
-    });
-  }
-
+  console.error(`🔧 Converted ${tools.length} tools for MCP`);
   return tools;
 }
 
-// Execute agentkit actions directly
-async function executeAgentkitAction(toolName: string, args: any): Promise<string> {
+// Execute agentkit actions directly - DYNAMIC
+async function executeAgentkitAction(mcpToolName: string, args: any): Promise<string> {
   try {
     const { agentkit, actions } = await initializeAgentkit();
     
-    // Get the correct action name
-    const agentkitActionName = MCP_TO_AGENTKIT_MAPPING[toolName];
-    if (!agentkitActionName) {
-      throw new Error(`No mapping found for MCP tool: ${toolName}`);
-    }
+    // Convert MCP tool name to action name
+    const actionName = toActionName(mcpToolName);
 
     // Find the action in the available actions
-    const action = actions.find((a: any) => a.name === agentkitActionName);
+    const action = actions.find((a: any) => a.name === actionName);
     if (!action) {
-      throw new Error(`Action ${agentkitActionName} not found in available actions`);
+      throw new Error(`Action '${actionName}' not found. Available actions: ${actions.map((a: any) => a.name).join(', ')}`);
     }
 
-    // Convert MCP arguments to AgentKit arguments
-    const actionArgs = convertMcpArgsToAgentkitArgs(toolName, args);
+    console.error(`🎯 Executing action: ${actionName}`);
+    console.error(`📥 Args: ${JSON.stringify(args)}`);
 
     // Execute the action with suppressed stdout to prevent JSON parsing errors
     const result = await withSuppressedStdout(async () => {
-      return await agentkit.run(action, actionArgs);
+      return await agentkit.run(action, args);
     });
     
+    console.error(`✅ Action completed: ${actionName}`);
     return result;
 
   } catch (error) {
     // Provide helpful error messages
     if (error instanceof Error) {
       if (error.message.includes('insufficient funds')) {
-        return `Error: Insufficient funds for ${toolName}. Please ensure you have enough balance and gas.`;
+        return `Error: Insufficient funds for ${mcpToolName}. Please ensure you have enough balance and gas.`;
       }
       if (error.message.includes('invalid address')) {
-        return `Error: Invalid address provided for ${toolName}. Please check the address format.`;
+        return `Error: Invalid address provided for ${mcpToolName}. Please check the address format.`;
       }
       if (error.message.includes('Smart Account is required')) {
         return `Error: Smart account configuration issue. Please check your environment variables.`;
       }
-      return `Error executing ${toolName}: ${error.message}`;
+      return `Error executing ${mcpToolName}: ${error.message}`;
     }
     
-    return `Error executing ${toolName}: ${String(error)}`;
+    return `Error executing ${mcpToolName}: ${String(error)}`;
   }
 }
 
@@ -353,11 +258,13 @@ function validateEnvironment(): boolean {
 
 // Log server info
 function logServerInfo() {
-  console.error('\n=== 0xGasless MCP SERVER ===');
+  console.error('\n=== 0xGasless MCP SERVER (Local Agentkit) ===');
+  console.error(`Version: ${version}`);
   console.error(`Chain ID: ${process.env.CHAIN_ID || '56 (default)'}`);
   console.error(`Private Key: ${process.env.PRIVATE_KEY ? '[SET]' : '[NOT SET]'}`);
   console.error(`API Key: ${process.env.API_KEY ? '[SET]' : '[NOT SET]'}`);
-  console.error('============================\n');
+  console.error(`SXT API Key: ${process.env.SXT_API_KEY ? '[SET]' : '[NOT SET]'}`);
+  console.error('==============================================\n');
 }
 
 export async function main() {
